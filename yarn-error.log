@@ -1,0 +1,79 @@
+Arguments: 
+  /usr/local/bin/node /usr/local/bin/yarn
+
+PATH: 
+  /Users/mac/Library/pnpm:/Applications/MxSrvs/bin/php/bin:/Applications/MxSrvs/bin/composer/bin:/Applications/MxSrvs/bin/mysql/bin:/Applications/MxSrvs/bin/redis/bin:/usr/bin/git/bin:/bin:/usr/bin:/usr/local/bin:/Applications/Visual Studio Code.app/Contents/Resources/app/bin:/Applications/MxSrvs/bin/nginx/sbin:/Users/mac/Documents/sdk/flutter/bin/cache/dart-sdk/bin:/Users/mac/Documents/sdk/flutter/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Users/mac/.cargo/bin:/usr/local/bin:/Users/mac/apache-maven-3.8.5/bin:/Users/mac/Library/Android/sdk/tools:/Users/mac/Library/Android/sdk/tools/bin:/Users/mac/Library/Android/sdk/tools/platform-tools:/Users/mac/Library/Android/sdk/tools/emulator:/usr/local/go/bin
+
+Yarn version: 
+  1.22.18
+
+Node version: 
+  16.19.1
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: ENOENT: no such file or directory, copyfile '/Users/mac/Library/Caches/Yarn/v6/npm-globals-13.21.0-163aae12f34ef502f5153cfbdd3600f36c63c571-integrity/node_modules/globals/globals.json' -> '/Users/mac/Documents/base/koa-blog-web/node_modules/@eslint/eslintrc/node_modules/globals/globals.json'
+
+npm manifest: 
+  {
+    "name": "Mblog",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+      "serve": "vue-cli-service serve",
+      "build": "vue-cli-service build",
+      "lint": "vue-cli-service lint"
+    },
+    "dependencies": {
+      "4": "^0.0.0",
+      "@element-plus/icons-vue": "^2.1.0",
+      "@types/eslint": "^8.44.2",
+      "@vueuse/core": "^9.10.0",
+      "animate.css": "^4.1.1",
+      "axios": "^0.27.2",
+      "core-js": "^3.8.3",
+      "crypto-js": "^4.1.1",
+      "element-plus": "^2.2.17",
+      "image-conversion": "^2.1.1",
+      "md-editor-v3": "^2.7.2",
+      "mint-filter": "^4.0.3",
+      "nprogress": "^0.2.0",
+      "pinia": "^2.0.28",
+      "pinia-plugin-persist": "^1.0.0",
+      "vue": "^3.2.13",
+      "vue-router": "^4.0.3"
+    },
+    "devDependencies": {
+      "@babel/core": "^7.12.16",
+      "@babel/eslint-parser": "^7.12.16",
+      "@vue/cli-plugin-babel": "~5.0.0",
+      "@vue/cli-plugin-eslint": "~5.0.0",
+      "@vue/cli-plugin-router": "~5.0.0",
+      "@vue/cli-plugin-vuex": "~5.0.0",
+      "@vue/cli-service": "~5.0.0",
+      "@vue/eslint-config-standard": "^6.1.0",
+      "autoprefixer": "^10.4.13",
+      "compression-webpack-plugin": "^10.0.0",
+      "eslint": "^7.32.0",
+      "eslint-plugin-import": "^2.25.3",
+      "eslint-plugin-node": "^11.1.0",
+      "eslint-plugin-promise": "^5.1.0",
+      "eslint-plugin-vue": "^8.0.3",
+      "node-sass": "^7.0.3",
+      "postcss": "^8.4.18",
+      "sass": "^1.32.7",
+      "sass-loader": "^13.0.2",
+      "svg-sprite-loader": "^6.0.11",
+      "tailwindcss": "^3.3.2",
+      "unplugin-auto-import": "^0.11.2",
+      "unplugin-vue-components": "^0.22.7"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
