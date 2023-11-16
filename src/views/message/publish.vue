@@ -7,15 +7,16 @@
 import { ref, reactive, onMounted, h } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ElNotification } from "element-plus";
-import { addMessage, updateMessage, getMessageTag } from "@/api/message";
-import { _getLocalItem, _removeLocalItem } from "@/utils/tool";
-import { debounce } from "@/utils/tool";
-import { fontSizeList, fontWeightList, predefineColors, opTabList } from "./useMessage";
-import Upload from "@/components/Upload/upload.vue";
-import { imgUpload } from "@/api/user";
-
 import { user } from "@/store/index";
 import { storeToRefs } from "pinia";
+
+import { addMessage, updateMessage, getMessageTag } from "@/api/message";
+import { _getLocalItem, _removeLocalItem, _setLocalItem } from "@/utils/tool";
+import { debounce } from "@/utils/tool";
+import { fontSizeList, fontWeightList, predefineColors, opTabList } from "./useMessage";
+import { imgUpload } from "@/api/user";
+
+import Upload from "@/components/Upload/upload.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -26,14 +27,15 @@ const loading = ref(false);
 const tabList = ref([]);
 
 function keepLastIndex(dom) {
+  var range;
   if (window.getSelection) {
     //ie11 10 9 ff safari
     dom.focus(); //解决ff不获取焦点无法定位问题
-    var range = window.getSelection(); //创建range
+    range = window.getSelection(); //创建range
     range.selectAllChildren(dom); //range 选择obj下所有子内容
     range.collapseToEnd(); //光标移至最后
   } else if (document.selection) {
-    var range = document.selection.createRange(); //创建选择对象
+    range = document.selection.createRange(); //创建选择对象
     range.moveToElementText(dom); //range定位到obj
     range.collapse(false); //光标移至最后
     range.select();
@@ -52,7 +54,6 @@ const form = reactive({
   tag: "",
   nick_name: "",
   bgList: [],
-  tag: "",
 });
 
 const primaryForm = Object.assign({ ...form });
@@ -82,6 +83,18 @@ const leaveMessage = async () => {
     });
     return;
   }
+  if (!form.tag) {
+    ElNotification({
+      offset: 60,
+      title: "温馨提示",
+      message: h(
+        "div",
+        { style: "color: #e6c081; font-weight: 600;" },
+        "请选择标签，没有标签可以自行创建"
+      ),
+    });
+    return;
+  }
   // 新增
   if (!form.id) {
     form.user_id = getUserInfo.value.id;
@@ -105,11 +118,16 @@ const leaveMessage = async () => {
     ElNotification({
       offset: 60,
       title: "提示",
-      message: h("div", { style: "color: #7ec050; font-weight: 600;" }, form.id ? "修改成功" : "留言成功"),
+      message: h(
+        "div",
+        { style: "color: #7ec050; font-weight: 600;" },
+        form.id ? "修改成功" : "留言成功"
+      ),
     });
     Object.assign(form, primaryForm);
     loading.value = false;
     _removeLocalItem("blog-message-item");
+    _setLocalItem("message-refresh", true);
     router.go(-1);
   } else {
     ElNotification({
@@ -138,16 +156,8 @@ const changeTab = (key) => {
   activeTab.value = key;
 };
 
-const changeUpload = (file) => {
-  if (file.length) {
-    form.bg_url = file[0].url;
-  } else {
-    form.bg_url = "";
-  }
-};
-
-onMounted(() => {
-  getHotMessageTag();
+onMounted(async () => {
+  await getHotMessageTag();
   if (route.query.type == "edit") {
     const item = _getLocalItem("blog-message-item");
     if (item) {
@@ -171,6 +181,9 @@ onMounted(() => {
     }
     form.nick_name = getUserInfo.value.nick_name || "游客";
     form.avatar = getUserInfo.value.avatar || "游客";
+    if (Array.isArray(tabList.value) && tabList.value.length > 0) {
+      form.tag = tabList.value[0].label;
+    }
   }
 });
 </script>
@@ -178,7 +191,10 @@ onMounted(() => {
   <div class="message">
     <div class="center_box !pt-[80px]">
       <div class="flex items-center justify-center !h-[1rem]">
-        <TypeWriter size="1.2rem" :typeList="['世间真假，皆我所求，苦与乐，都可奉酒。']"></TypeWriter>
+        <TypeWriter
+          size="1.2rem"
+          :typeList="['世间真假，皆我所求，苦与乐，都可奉酒。']"
+        ></TypeWriter>
       </div>
       <el-card class="!mt-[2rem]">
         <div class="!h-[22rem]" :style="{ backgroundColor: form.bg_color }">
@@ -189,7 +205,18 @@ onMounted(() => {
                 <span class="nick-name"> {{ form.nick_name }}</span>
               </div>
             </div>
-            <div class="content" :style="{ color: form.color, fontSize: form.font_size + 'px', fontWeight: form.font_weight }" ref="inputCommentRef" contenteditable="true" @input="inputComment(val)" @focus="focusCommentInput"></div>
+            <div
+              class="content"
+              :style="{
+                color: form.color,
+                fontSize: form.font_size + 'px',
+                fontWeight: form.font_weight,
+              }"
+              ref="inputCommentRef"
+              contenteditable="true"
+              @input="inputComment(val)"
+              @focus="focusCommentInput"
+            ></div>
           </div>
           <div class="bottom">
             <div class="tag">{{ form.tag }}</div>
@@ -199,7 +226,9 @@ onMounted(() => {
       <div class="!mt-[10px] !h-[20rem]">
         <ul class="tab">
           <li v-for="item in opTabList" :key="item.key" @click="changeTab(item.key)">
-            <div :class="[item.key == activeTab ? 'active-tab' : '', 'tab-li']">{{ item.label }}</div>
+            <div :class="[item.key == activeTab ? 'active-tab' : '', 'tab-li']">
+              {{ item.label }}
+            </div>
           </li>
         </ul>
         <div class="!h-[12rem] !p-[15px]">
@@ -207,25 +236,72 @@ onMounted(() => {
             <el-color-picker v-model="form.bg_color" show-alpha :predefine="predefineColors" />
           </div>
           <div v-else-if="activeTab == 1" class="flex items-center">
-            <el-select v-model="form.font_size" class="!w-[160px] !mr-[20px]" placeholder="请选择字体大小" size="large">
-              <el-option v-for="item in fontSizeList" :key="item.key" :label="item.key" :value="item.key" />
+            <el-select
+              v-model="form.font_size"
+              class="!w-[160px] !mr-[20px]"
+              placeholder="请选择字体大小"
+              size="large"
+            >
+              <el-option
+                v-for="item in fontSizeList"
+                :key="item.key"
+                :label="item.key"
+                :value="item.key"
+              />
             </el-select>
             <el-color-picker v-model="form.color" show-alpha :predefine="predefineColors" />
-            <el-select v-model="form.font_weight" class="!w-[160px] !ml-[20px]" placeholder="请选择字体宽度" size="large">
-              <el-option v-for="item in fontWeightList" :key="item.key" :label="item.key" :value="item.key" />
+            <el-select
+              v-model="form.font_weight"
+              class="!w-[160px] !ml-[20px]"
+              placeholder="请选择字体宽度"
+              size="large"
+            >
+              <el-option
+                v-for="item in fontWeightList"
+                :key="item.key"
+                :label="item.key"
+                :value="item.key"
+              />
             </el-select>
           </div>
           <div v-else-if="activeTab == 2">
-            <Upload v-model:file-list="form.bgList" :limit="1" :width="280" :height="140" :preview="false" @change="changeUpload" />
+            <Upload
+              v-model:file-list="form.bgList"
+              :limit="1"
+              :width="280"
+              :height="140"
+              :preview="false"
+            />
           </div>
           <div v-else>
-            <el-select v-model="form.tag" class="!w-[180px]" placeholder="请选择或输入标签" size="large" filterable allow-create clearable>
-              <el-option v-for="item in tabList" :key="item.key" :label="item.label" :value="item.label" />
+            <el-select
+              v-model="form.tag"
+              class="!w-[180px]"
+              placeholder="请选择或输入标签"
+              size="large"
+              filterable
+              allow-create
+              clearable
+            >
+              <el-option
+                v-for="item in tabList"
+                :key="item.key"
+                :label="item.label"
+                :value="item.label"
+              />
             </el-select>
           </div>
         </div>
         <div class="!h-[4rem] !p-[15px] flex justify-center items-center">
-          <el-button :disabled="loading" :loading="loading" class="leave-message" @click="leaveMessage">{{ loading ? "努力上传中..." : route.query.type == "edit" ? "保存" : "发布" }}</el-button>
+          <el-button
+            :disabled="loading"
+            :loading="loading"
+            class="leave-message"
+            @click="leaveMessage"
+            >{{
+              loading ? "努力上传中..." : route.query.type == "edit" ? "保存" : "发布"
+            }}</el-button
+          >
         </div>
       </div>
     </div>
@@ -276,8 +352,7 @@ onMounted(() => {
   }
 
   .tag {
-    font-style: italic;
-    font-family: "Peralta", monospace;
+    font-size: 12px;
     color: #fff;
     background-color: rgba(0, 0, 0, 0.2);
     padding: 3px 8px;
@@ -325,7 +400,9 @@ onMounted(() => {
     }
   }
 }
-
+.center_box {
+  min-height: calc(100vh - 128px);
+}
 .loading {
   position: absolute;
   top: 0;

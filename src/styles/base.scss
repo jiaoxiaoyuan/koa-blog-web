@@ -3,22 +3,6 @@
 @import "./element/dark.scss"; //引入全局样式
 @import "./element/loading.scss"; //引入全局加载样式
 
-// // 圆 体
-// @font-face {
-//   font-family: "CatCircle";
-//   font-weight: 500;
-//   src: url("@/assets/font/catCircle.ttf");
-//   font-display: swap;
-// }
-
-// // 得意黑
-// @font-face {
-//   font-family: "DYBlack";
-//   font-weight: 500;
-//   src: url("@/assets/font/SmileySans-Oblique.ttf"), url("@/assets/font/SmileySans-Oblique.ttf.woff2") format("woff2");
-//   font-display: swap;
-// }
-
 html,
 body {
   height: 100%;
@@ -29,9 +13,15 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-size: var(--global-font-size);
-  // font-family: "YouYuan381906f42d253d6", serif;
 
-  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+  font-family:
+    Helvetica Neue,
+    Helvetica,
+    PingFang SC,
+    Hiragino Sans GB,
+    Microsoft YaHei,
+    Arial,
+    sans-serif;
 }
 
 #app {
@@ -78,7 +68,16 @@ div:focus {
 }
 
 .layout {
-  background: linear-gradient(90deg, #ffffff 1%, #ead2ea 10.2%, #e4d5ee 19.6%, #d1def3 36.8%, #b5dee5 62.2%, #cfebf3 88.9%, #ffffff 99%) !important;
+  background: linear-gradient(
+    90deg,
+    #ffffff 1%,
+    #ead2ea 10.2%,
+    #e4d5ee 19.6%,
+    #d1def3 36.8%,
+    #b5dee5 62.2%,
+    #cfebf3 88.9%,
+    #ffffff 99%
+  ) !important;
 }
 .gradient {
   background: rgb(255, 255, 255, 0.7);
@@ -199,22 +198,26 @@ div:focus {
   cursor: pointer;
 }
 
-.message {
-  background-color: #fff;
-  background-image: linear-gradient(125deg, #c6daed, #b9ebc7, #a0c8e3, #dfafa9, #d0a5e3);
-  background-size: 400%;
-  animation: bgAnimation 15s infinite;
+svg {
+  cursor: pointer;
 }
 
-@keyframes bgAnimation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
+.apply-button {
+  display: inline-block;
+  padding: 5px 20px;
+  background-color: transparent;
+  box-sizing: border-box;
+  border-radius: 20px;
+  font-weight: 900;
+  font-size: 16px;
+  border: 3px solid #fff;
+  color: #fff;
+  transition: 0.3s;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--primary);
+    border: 3px solid var(--primary);
   }
 }
 
@@ -272,7 +275,7 @@ div:focus {
 // pc
 @media screen and (min-width: 768px) {
   .home_center_box {
-    padding-top: 100px;
+    padding-top: 80px;
     max-width: 1200px;
     margin: 0 auto;
     min-height: calc(100vh - 128px);
@@ -321,6 +324,10 @@ div:focus {
   }
 }
 
+.md-preview-v3 {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 // 滚动条宽度
 ::-webkit-scrollbar {
   width: 8px;
@@ -340,11 +347,36 @@ div:focus {
 /* 滚动条滑块 */
 ::-webkit-scrollbar-thumb {
   background-color: #efbcda;
-  background-image: -webkit-linear-gradient(45deg, rgb(171, 245, 218) 25%, transparent 25%, transparent 50%, rgb(150, 212, 236) 50%, rgb(239, 147, 228) 75%, transparent 75%, transparent);
+  background-image: -webkit-linear-gradient(
+    45deg,
+    rgb(171, 245, 218) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgb(150, 212, 236) 50%,
+    rgb(239, 147, 228) 75%,
+    transparent 75%,
+    transparent
+  );
   border-radius: 2em;
 }
 ::scrollbar-thumb {
   background-color: #efbcda;
-  background-image: -webkit-linear-gradient(45deg, rgb(171, 245, 218) 25%, transparent 25%, transparent 50%, rgb(150, 212, 236) 50%, rgb(239, 147, 228) 75%, transparent 75%, transparent);
+  background-image: -webkit-linear-gradient(
+    45deg,
+    rgb(171, 245, 218) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgb(150, 212, 236) 50%,
+    rgb(239, 147, 228) 75%,
+    transparent 75%,
+    transparent
+  );
   border-radius: 2em;
+}
+
+.code-block::scrollbar-thumb {
+  background-color: #efbcda !important;
+}
+.code-block::-webkit-scrollbar-thumb {
+  background-color: #efbcda !important;
 }

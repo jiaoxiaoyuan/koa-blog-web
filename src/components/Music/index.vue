@@ -7,12 +7,13 @@
 import MusicList from "./list/index.vue";
 import MusicControl from "./controls/index.vue";
 import { defineComponent, ref } from "vue";
+import blogAvatar from "@/assets/img/blogAvatar.png";
 
 import { music } from "@/store/index";
 import { storeToRefs } from "pinia";
 
-const musicStore = music();
-const { getIsShow, getIsPaused, getIsToggleImg } = storeToRefs(musicStore);
+const { getIsShow, getShowLyricBoard, getIsPaused, getIsToggleImg, getMusicDescription } =
+  storeToRefs(music());
 
 defineComponent({
   name: "MusicPlayer",
@@ -22,24 +23,62 @@ defineComponent({
 const clickFlag = ref(false);
 
 const toggleDisc = () => {
-  musicStore.setIsShow();
+  music().setIsShow();
   if (!clickFlag.value) {
     clickFlag.value = true;
   }
 };
+
+const closeBoard = () => {
+  music().setShowLyricBoard(false);
+};
+
+const playMusic = () => {
+  music().togglePlay();
+};
 </script>
 
 <template>
-  <div :class="['music', getIsShow ? 'show-music' : '', !getIsShow && clickFlag ? 'hide-music' : '']">
-    <div class="p-[10px]">
-      <i class="iconfont icon-off-search change-color" @click="toggleDisc"></i>
-      <!-- 播放器列表 -->
-      <MusicList class="list" />
-      <!-- 播放器控制器 -->
-      <MusicControl :autoplay="false" class="control" />
+  <div
+    :class="['music', getIsShow ? 'show-music' : '', !getIsShow && clickFlag ? 'hide-music' : '']"
+  >
+    <div class="flex justify-center items-center !w-[100%] !h-[100%]">
+      <div class="music-box flex flex-col justify-center items-center">
+        <i
+          v-if="getShowLyricBoard"
+          class="close-board iconfont icon-arrowdown"
+          @click="closeBoard"
+        ></i>
+        <i class="iconfont icon-off-search change-color" @click="toggleDisc"></i>
+        <!-- 播放器列表 -->
+        <MusicList class="list" />
+        <!-- 播放器控制器 -->
+        <MusicControl />
+      </div>
     </div>
   </div>
-  <svg-icon :class="['music-disc', getIsToggleImg ? '' : 'disc-rotate', getIsPaused ? 'paused' : '']" name="disc" width="5rem" @click="toggleDisc"></svg-icon>
+  <div v-if="!getIsShow" :class="['music-disc', getIsPaused ? 'music-left' : '']">
+    <img
+      @click="toggleDisc"
+      :class="['music-img', getIsToggleImg ? '' : 'disc-rotate', getIsPaused ? 'paused' : '']"
+      :src="getMusicDescription?.al?.picUrl || blogAvatar"
+      alt="music cover"
+    />
+    <div class="info-box">
+      <div class="info">
+        <div class="text-sm whitespace-nowrap">
+          {{ getMusicDescription?.name }}
+        </div>
+        <div class="text-sm whitespace-nowrap">
+          {{ getMusicDescription?.ar[0]?.name || "歌手走丢了" }}
+        </div>
+      </div>
+      <i
+        :class="['change-color', 'iconfont', getIsPaused ? 'icon-zanting' : 'icon-bofangzhong ']"
+        @click="playMusic"
+      ></i>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -47,50 +86,90 @@ const toggleDisc = () => {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
   bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #fafafa;
-  border-radius: 8px;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: 2000;
-  transform: translateX(-2000px);
   opacity: 0;
+  display: none;
+
+  &-box {
+    position: relative;
+    max-width: 1080px;
+    background-color: #fff;
+    overflow: hidden;
+    padding-bottom: 20px;
+  }
 
   .list {
     max-width: 1080px;
+    height: 100%;
+    padding-top: 30px;
+    overflow: hidden;
   }
 
   .control {
     max-width: 1080px;
   }
 }
-
 .icon-off-search {
   position: absolute;
-  top: 70px;
-  right: 30px;
+  top: 10px;
+  right: 10px;
   font-size: 1.4rem;
-  z-index: 3001;
+  z-index: 2001;
+  color: #62c28a;
+}
+
+.close-board {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  cursor: pointer;
+  font-size: 1.4rem;
+  z-index: 2001;
+  color: #62c28a;
+
+  &:hover {
+    color: #62c28a;
+  }
 }
 
 .show-music {
+  display: block;
   animation: showPlayer 0.3s ease-in-out forwards;
 }
 
 .hide-music {
-  animation: hidePlayer 0.4s ease-in-out forwards;
+  animation: hidePlayer 0.3s ease-in-out forwards;
 }
 
 .music-disc {
   position: fixed;
-  bottom: 50px;
-  left: -30px;
-  transition: all 0.3s;
-  z-index: 3002;
-  &:hover {
-    left: 2px;
+  left: 0;
+  box-sizing: border-box;
+  background-color: #fafafa;
+  display: flex;
+  align-items: center;
+  z-index: 2002;
+  cursor: pointer;
+  transition: left 0.2s;
+  .music-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    margin: 5px;
+  }
+
+  .info-box {
+    display: flex;
+    align-items: center;
+    transition: width 0.2s;
+    width: 0;
+    overflow: hidden;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-sizing: border-box;
   }
 }
 
@@ -107,61 +186,90 @@ const toggleDisc = () => {
   animation-play-state: paused;
 }
 
-// mobile
-@media screen and (max-width: 768px) {
-  .show-music {
-    animation: mShowPlayer 0.3s ease-in-out forwards;
+// pc
+@media screen and (min-width: 768px) {
+  .music-disc {
+    bottom: 50px;
+    height: 60px;
+    border-radius: 30px;
+    min-width: 60px;
+
+    .music-img {
+      width: 50px;
+      height: 50px;
+      border-radius: 25px;
+    }
   }
 
-  .hide-music {
-    animation: mHidePlayer 0.4s ease-in-out forwards;
+  .music-disc:hover {
+    left: 0;
+    .info-box {
+      width: 100%;
+      padding-right: 10px;
+    }
+    .info {
+      padding-right: 5px;
+    }
+  }
+
+  .music-box {
+    border-radius: 20px;
+  }
+
+  .music-left {
+    left: -30px;
+  }
+}
+
+// mobile
+@media screen and (max-width: 768px) {
+  .music-disc {
+    bottom: 17px;
+    width: 50px;
+    border-radius: 25px;
+    min-width: 50px;
+
+    .music-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 20px;
+    }
+  }
+  .music-left {
+    left: -25px;
+  }
+
+  .music-box {
+    width: 100%;
+    height: 100%;
+  }
+
+  .icon-off-search {
+    top: 60px;
+  }
+  .close-board {
+    top: 60px;
   }
 }
 
 @keyframes showPlayer {
   0% {
-    transform: translateX(-2000px);
-    opacity: 0.7;
+    opacity: 0;
   }
 
   100% {
-    transform: translateX(0px);
     opacity: 1;
   }
 }
 
 @keyframes hidePlayer {
   0% {
-    transform: translateX(0px);
     opacity: 1;
+    display: block;
   }
 
   100% {
-    transform: translateX(-2000px);
-    opacity: 0;
-  }
-}
-
-@keyframes mShowPlayer {
-  0% {
-    transform: translateX(-1000px);
-    opacity: 0.7;
-  }
-
-  100% {
-    transform: translateX(0px);
-    opacity: 1;
-  }
-}
-
-@keyframes mHidePlayer {
-  0% {
-    transform: translateX(0px);
-    opacity: 1;
-  }
-
-  100% {
-    transform: translateX(-1000px);
+    display: none;
     opacity: 0;
   }
 }

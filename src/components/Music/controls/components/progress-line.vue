@@ -5,16 +5,12 @@
 -->
 <script setup>
 import { ref, watch, defineComponent } from "vue";
+
 import { music } from "@/store/index";
 
 defineComponent({
   name: "ProgressLine",
 });
-
-const musicStore = music();
-
-// 暴露出进度变化事件
-const emits = defineEmits(["scheduleChange"]);
 
 const props = defineProps({
   schedule: {
@@ -27,10 +23,10 @@ const props = defineProps({
 const currentSchedule = ref(0);
 
 const handleChange = () => {
-  // 修改pina里的当前播放进度 统一状态管理
-  musicStore.setCurrentSchedule(currentSchedule.value);
-  // 通知父组件 当前播放进度改变了
-  emits("scheduleChange");
+  // 先打断自动设置播放进度
+  music().setIsUseProgress(true);
+  // 修改pina里的当前播放进度
+  music().setCurrentTime(currentSchedule.value);
 };
 
 watch(
@@ -52,17 +48,27 @@ watch(
 
 <style lang="scss" scoped>
 .music-line {
+  position: relative;
   width: 100%;
+}
+.iconfont {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+:deep(.el-slider) {
+  height: 6px;
 }
 
 :deep(.el-slider__bar) {
   background-color: #62bf82;
+  border-radius: 0px !important;
 }
 
 :deep(.el-slider__button) {
   width: 8px;
   height: 8px;
-  border: solid 2px #62bf82;
+  border: solid 5px #62bf82;
 }
 
 :deep(.el-slider.is-vertical .el-slider__runway) {

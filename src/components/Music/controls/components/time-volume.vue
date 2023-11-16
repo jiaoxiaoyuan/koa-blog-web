@@ -5,13 +5,14 @@
 -->
 <script setup>
 import { defineComponent, ref, watch } from "vue";
+
 import { music } from "@/store/index";
 import { storeToRefs } from "pinia";
 import { MODELLIST } from "@/utils/enum";
-import CustomMusicList from "../../list/custom-music-list.vue";
 
-const musicStore = music();
-const { getPlayModel, getVolume } = storeToRefs(musicStore);
+import CustomMusicList from "../../list/components/custom-music-list.vue";
+
+const { getPlayModel, getVolume } = storeToRefs(music());
 
 defineComponent({
   name: "TimeVolume",
@@ -23,9 +24,9 @@ const playModel = {
   SINGLECYCLE: "icon-danquxunhuan",
 };
 
-const emits = defineEmits(["update:volume"]);
+defineEmits(["update:volume"]);
 
-const props = defineProps({
+defineProps({
   // 当前播放时长
   currentTime: {
     type: String,
@@ -50,7 +51,7 @@ const changeModel = () => {
       index = index + 1;
     }
   }
-  musicStore.setPlayModel(MODELLIST[index]);
+  music().setPlayModel(MODELLIST[index]);
 };
 
 // 手动关闭popover
@@ -62,7 +63,8 @@ watch(
   () => getVolume.value,
   (newV) => {
     // 根据pina存的声音来改变播放器声音大小
-    currentVolume.value = newV;
+    // 存的是除以了 100 的小数
+    currentVolume.value = newV * 100;
   },
   {
     immediate: true,
@@ -72,7 +74,7 @@ watch(
   () => currentVolume.value,
   () => {
     // 修改音乐大小 外面会根据音乐大小去调节音乐播放器的声音大小
-    musicStore.setVolume(currentVolume.value);
+    music().setVolume(currentVolume.value);
   }
 );
 </script>
@@ -84,7 +86,7 @@ watch(
     <!-- 时间显示 -->
     <span class="time">{{ currentTime }} / {{ duration }}</span>
     <!-- 音量调节 -->
-    <el-popover placement="top" trigger="click" :width="40">
+    <el-popover placement="top" trigger="click" :width="42">
       <template #reference>
         <i class="iconfont icon-yinliang change-color"> </i>
       </template>
@@ -93,7 +95,15 @@ watch(
       </template>
     </el-popover>
     <!-- 歌曲列表 -->
-    <el-popover ref="elPopoverRef" placement="top" :width="400" :show-arrow="false" :teleported="false" trigger="click" @touchmove.native.stop.prevent>
+    <el-popover
+      ref="elPopoverRef"
+      placement="top"
+      :width="400"
+      :show-arrow="false"
+      :teleported="false"
+      trigger="click"
+      @touchmove.stop.prevent
+    >
       <template #reference>
         <i class="iconfont icon-bofangliebiao change-color"></i>
       </template>
@@ -164,18 +174,5 @@ watch(
   width: 8px;
   height: 8px;
   border: solid 2px #62bf82;
-}
-
-:deep(.el-slider.is-vertical .el-slider__runway) {
-  width: 4px;
-  margin: 0;
-}
-
-:deep(.el-slider.is-vertical .el-slider__button-wrapper) {
-  left: -16px;
-}
-
-:deep(.el-slider.is-vertical .el-slider__bar) {
-  width: 4px;
 }
 </style>

@@ -1,13 +1,13 @@
 import http from "@/config/request";
-import { compressAccurately } from "image-conversion";
 import { user } from "@/store/index.js";
 import { h } from "vue";
 import { ElNotification } from "element-plus";
+import imageCompression from "browser-image-compression";
 
 /** 登录 */
 export const reqLogin = (data) => {
   return new Promise((resolve, reject) => {
-    http.post("/api/user/login", data).then((res) => {
+    http.post("/user/login", data).then((res) => {
       resolve(res);
     });
   });
@@ -16,7 +16,7 @@ export const reqLogin = (data) => {
 /** 注册 */
 export const reqRegister = (data) => {
   return new Promise((resolve, reject) => {
-    http.post("/api/user/register", data).then((res) => {
+    http.post("/user/register", data).then((res) => {
       resolve(res);
     });
   });
@@ -25,7 +25,7 @@ export const reqRegister = (data) => {
 /** 用户修改个人信息 */
 export const updateUserInfo = (data) => {
   return new Promise((resolve, reject) => {
-    http.put("/api/user/updateOwnUserInfo", data).then((res) => {
+    http.put("/user/updateOwnUserInfo", data).then((res) => {
       resolve(res);
     });
   });
@@ -34,7 +34,7 @@ export const updateUserInfo = (data) => {
 /** 用户修改密码 */
 export const updateUserPassword = (data) => {
   return new Promise((resolve, reject) => {
-    http.put("/api/user/updatePassword", data).then((res) => {
+    http.put("/user/updatePassword", data).then((res) => {
       resolve(res);
     });
   });
@@ -43,7 +43,7 @@ export const updateUserPassword = (data) => {
 /** 获取当前登录人的信息 */
 export const getUserInfoById = (id) => {
   return new Promise((resolve, reject) => {
-    http.get("/api/user/getUserInfoById/" + id, {}).then((res) => {
+    http.get("/user/getUserInfoById/" + id, {}).then((res) => {
       resolve(res);
     });
   });
@@ -76,11 +76,11 @@ export const imgUpload = async (data) => {
 
   return new Promise((resolve) => {
     http
-      .post("/api/upload/img", formData, {
+      .post("/upload/img", formData, {
         config: {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: userStore.getToken,
+            "Authorization": userStore.getToken,
           },
         },
       })
@@ -93,8 +93,8 @@ export const imgUpload = async (data) => {
 // 图片压缩
 export const conversion = (file) => {
   return new Promise((resolve) => {
-    compressAccurately(file, 800).then((res) => {
-      // The res in the promise is a compressed Blob type (which can be treated as a File type) file;
+    // https://www.npmjs.com/package/browser-image-compression?activeTab=readme
+    imageCompression(file, { maxSizeMB: 0.8 }).then((res) => {
       resolve(res);
     });
   });

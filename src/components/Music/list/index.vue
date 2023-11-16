@@ -3,14 +3,13 @@ import { defineComponent, onMounted, watch, ref, reactive, onBeforeUnmount, h } 
 
 import { music } from "@/store/index";
 import { reqToplist, reqTopDetaliList } from "@/api/music";
-import { PLAYTYPE } from "../music";
+import { PLAYTYPE } from "../musicTool";
 import { storeToRefs } from "pinia";
 import { ElNotification } from "element-plus";
-import SearchList from "./search-list.vue";
+import SearchList from "./components/search-list.vue";
+import LyricBoard from "./components/lyric-board.vue";
 
-const musicStore = music();
-
-const { getCustomerMusicList } = storeToRefs(musicStore);
+const { getCustomerMusicList } = storeToRefs(music());
 
 const topList = ref([]);
 
@@ -44,7 +43,6 @@ const reqMusicList = async () => {
     musicListLoading.value = false;
     currentTop.value = topList.value[3];
     await reqTopMusicList(topList.value[3].id);
-
     observeBox();
   }
 };
@@ -63,8 +61,9 @@ const reqTopMusicList = async (id) => {
     if (!res.songs.length) {
       params.loadMore = false;
     }
-    currentMusicList.value = params.offset == 0 ? res.songs : currentMusicList.value.concat(res.songs);
-    musicStore.setMusicList(currentMusicList.value);
+    currentMusicList.value =
+      params.offset == 0 ? res.songs : currentMusicList.value.concat(res.songs);
+    music().setMusicList(currentMusicList.value);
   }
   params.loading = false;
 };
@@ -73,14 +72,12 @@ const reqTopMusicList = async (id) => {
 const observeBox = () => {
   // 获取要监听的元素
   box = document.querySelector(".observe");
+
   observe = new IntersectionObserver(
     (entries) => {
       entries.forEach(async (e) => {
         if (e.isIntersecting && e.intersectionRatio > 0) {
-          if (params.offset == 0) {
-            params.offset = params.offset + params.limit;
-          } else {
-            params.offset = params.offset + params.limit;
+          if (!params.loading) {
             loadMore();
           }
         }
@@ -92,11 +89,9 @@ const observeBox = () => {
 };
 
 const playMusic = (item) => {
-  // 设置当前播放音乐的id
-  musicStore.setCurrentMusicId(item.id);
-  // 设置播放音乐的详细描述
-  musicStore.setCurrentMusicDesc(item);
-  musicStore.setPlayType(PLAYTYPE.TOP);
+  // 设置当前音乐信息
+  music().setMusicInfo(item.id);
+  music().setPlayType(PLAYTYPE.TOP);
 };
 
 // 切换排行榜置空数据
@@ -106,15 +101,15 @@ const clickTopMusicList = (item) => {
   params.offset = 0;
   params.loadMore = true;
   currentMusicList.value = [];
-  musicStore.setMusicList([]);
+  music().setMusicList([]);
   reqTopMusicList();
 };
 
 // 添加歌曲
 const customerAddMusic = (item) => {
   if (isActive(item.id)) return;
-  musicStore.setCustomerMusicList("add", item);
-  musicStore.setPlayType(PLAYTYPE.CUSTOM);
+  music().setCustomerMusicList("add", item);
+  music().setPlayType(PLAYTYPE.CUSTOM);
   ElNotification({
     offset: 60,
     title: "提示",
@@ -143,6 +138,7 @@ const getFlagToMusicList = (songs) => {
 };
 
 const loadMore = () => {
+  params.offset = params.offset + params.limit;
   reqTopMusicList();
 };
 
@@ -166,10 +162,16 @@ onBeforeUnmount(() => {
 <template>
   <div class="music-list">
     <div class="flex justify-between items-start">
-      <div class="!py-[10px] music-list__left">
+      <div class="music-list__left">
         <div class="header">分类歌单</div>
         <el-row v-if="topList.length" class="body">
-          <el-col v-loading="musicListLoading" class="flex justify-center items-center overflow-auto" :span="6" v-for="item in topList" :key="item.id">
+          <el-col
+            v-loading="musicListLoading"
+            class="flex justify-center items-center overflow-auto"
+            :span="6"
+            v-for="item in topList"
+            :key="item.id"
+          >
             <div class="top" @click="clickTopMusicList(item)">
               <img class="top-bg" :src="item.coverImgUrl" />
               <i class="iconfont icon-zanting play"></i>
@@ -177,23 +179,30 @@ onBeforeUnmount(() => {
           </el-col>
         </el-row>
       </div>
-      <div class="!py-[10px] music-list__right">
+      <div class="music-list__right">
         <el-dropdown trigger="click" class="search-down">
           <span class="iconfont icon-nav-search scale"></span>
           <template #dropdown>
             <SearchList />
           </template>
         </el-dropdown>
-        <span v-if="currentTop" class="top-name text-overflow" :title="currentTop.name">{{ currentTop.name }}</span>
-        <el-row v-loading="params.loading">
+        <span v-if="currentTop" class="top-name text-overflow" :title="currentTop.name">{{
+          currentTop.name
+        }}</span>
+        <el-row>
           <el-col :span="24" class="header">
             <div class="title title1">歌曲</div>
             <div class="title title2">作者</div>
             <div class="title title3">其他</div>
           </el-col>
         </el-row>
-        <el-row v-if="currentMusicList.length" class="body">
-          <el-col class="flex justify-start items-center overflow-auto" :span="24" v-for="item in currentMusicList" :key="item.id">
+        <el-row v-loading="params.loading" v-if="currentMusicList.length" class="body">
+          <el-col
+            class="flex justify-start items-center overflow-auto"
+            :span="24"
+            v-for="item in currentMusicList"
+            :key="item.id"
+          >
             <div class="name" @click="playMusic(item)">
               <span class="text-overflow" :title="item.name">{{ item.name }}</span>
             </div>
@@ -204,25 +213,35 @@ onBeforeUnmount(() => {
               <span class="text-overflow" :title="item.alia[0]">{{ item.alia[0] }}</span>
             </div>
             <div class="add-music">
-              <i :class="['iconfont', 'icon-tianjiadao', 'change-color', item.active ? 'active' : '']" @click="customerAddMusic(item)"></i>
+              <i
+                :class="[
+                  'iconfont',
+                  'icon-tianjiadao',
+                  'change-color',
+                  item.active ? 'active' : '',
+                ]"
+                @click="customerAddMusic(item)"
+              ></i>
             </div>
           </el-col>
-          <div class="observe" @click="loadMore">{{ params.loadMore ? "加载更多" : "已经到底了" }}</div>
+          <div class="observe" @click="loadMore">
+            {{ params.loadMore ? "加载更多" : "已经到底了" }}
+          </div>
         </el-row>
       </div>
     </div>
+    <!-- 歌词面板 -->
+    <LyricBoard />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .music-list {
+  position: relative;
   box-sizing: border-box;
-  margin-top: 30px;
-  padding: 5px;
   display: flex;
   justify-content: center;
   width: 100%;
-
   .top-name {
     display: inline-block;
     font-size: 1.2rem;
@@ -232,9 +251,9 @@ onBeforeUnmount(() => {
   }
 
   &__left {
-    width: 500px;
+    width: 50%;
     height: calc(100vh - 250px);
-    overflow: auto;
+    overflow: hidden;
     .header {
       padding-left: 20px;
       font-weight: 600;
@@ -249,7 +268,9 @@ onBeforeUnmount(() => {
   &__right {
     position: relative;
     height: calc(100vh - 250px);
-    width: 500px;
+    width: 50%;
+    overflow: hidden;
+    padding: 0 10px;
     .header {
       width: 100%;
       display: flex;
@@ -270,6 +291,7 @@ onBeforeUnmount(() => {
     .body {
       height: calc(100vh - 300px);
       overflow: auto;
+      padding-bottom: 20px;
     }
   }
   .top {
@@ -353,14 +375,14 @@ onBeforeUnmount(() => {
 
   .search-down {
     position: absolute;
-    top: 10px;
+    top: 0px;
     left: 40%;
+    z-index: 2000;
     .icon-nav-search {
       font-size: 1.6rem;
     }
   }
 }
-
 // mobile
 @media screen and (max-width: 768px) {
   .music-list__left {
@@ -369,6 +391,16 @@ onBeforeUnmount(() => {
 
   .music-list__right {
     width: 400px;
+    height: calc(100vh - 130px);
+  }
+
+  .body {
+    height: calc(100vh - 180px) !important;
+  }
+
+  .search-down {
+    top: 35px !important;
+    left: 75% !important;
   }
 }
 </style>

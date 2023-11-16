@@ -2,10 +2,16 @@
 <script setup>
 import { ref, reactive, watch, h } from "vue";
 import { useRoute, useRouter } from "vue-router";
+
 import { reqLogin, reqRegister, getUserInfoById } from "@/api/user";
-import { ElNotification } from "element-plus";
+
 import { user } from "@/store/index.js";
-import { _getLocalItem, getWelcomeSay } from "@/utils/tool";
+import { getWelcomeSay, _getLocalItem, _setLocalItem, _removeLocalItem } from "@/utils/tool";
+// 本地数据加密解密
+import { _encrypt, _decrypt } from "@/utils/encipher";
+
+import { ElNotification } from "element-plus";
+import SwitchTheme from "@/components/SwitchTheme/index.vue";
 
 const userStore = user();
 const route = useRoute();
@@ -19,7 +25,8 @@ const usernameV = (rule, value, cb) => {
   }
   cb();
 };
-const REGEXP_PWD = /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?!([^(0-9a-zA-Z)]|[()])+$)(?!^.*[\u4E00-\u9FA5].*$)([^(0-9a-zA-Z)]|[()]|[a-z]|[A-Z]|[0-9]){6,18}$/;
+const REGEXP_PWD =
+  /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?!([^(0-9a-zA-Z)]|[()])+$)(?!^.*[\u4E00-\u9FA5].*$)([^(0-9a-zA-Z)]|[()]|[a-z]|[A-Z]|[0-9]){6,18}$/;
 const password1V = (rule, value, cb) => {
   if (!value) {
     return cb(new Error("请输入密码"));
@@ -42,6 +49,7 @@ const loginForm = reactive({
   username: "",
   password: "",
 });
+const isRemember = ref(false);
 const primaryLoginForm = reactive({ ...loginForm });
 
 const registerFormRef = ref();
@@ -53,7 +61,7 @@ const registerForm = reactive({
 });
 const primaryRegisterForm = reactive({ ...registerForm });
 
-const loginRlues = {
+const loginRules = {
   username: [{ required: true, message: "请输入用户账号", trigger: "blur" }],
   password: [{ required: true, message: "请输入用户密码", trigger: "blur" }],
 };
@@ -118,6 +126,9 @@ const userLogin = async (type) => {
     if (res && res.code == 0) {
       // 保存 token
       await userStore.setToken(res.result.token);
+      // 记住密码
+      _setLocalItem("loginForm", _encrypt(loginForm));
+
       ElNotification({
         offset: 60,
         title: "提示",
@@ -130,7 +141,11 @@ const userLogin = async (type) => {
         Object.assign(registerForm, primaryRegisterForm);
         const { id, nick_name } = userRes.result;
         await welcome(id, nick_name);
-        router.go(-2);
+        if (_getLocalItem("blogLastRouter")) {
+          router.push(_getLocalItem("blogLastRouter"));
+        } else {
+          router.go(-2);
+        }
       } else {
         ElNotification({
           offset: 60,
@@ -158,6 +173,12 @@ const userLogin = async (type) => {
             title: "提示",
             message: h("div", { style: "color: #7ec050; font-weight: 600;" }, "登录成功"),
           });
+          if (isRemember.value) {
+            // 记住密码
+            _setLocalItem("loginForm", _encrypt(loginForm));
+          } else {
+            _removeLocalItem("loginForm");
+          }
           // 获取并保存当前用户信息
           const userRes = await getUserInfoById(res.result.id);
           if (userRes.code == 0) {
@@ -165,7 +186,11 @@ const userLogin = async (type) => {
             Object.assign(loginForm, primaryLoginForm);
             const { id, nick_name } = userRes.result;
             await welcome(id, nick_name);
-            router.go(-1);
+            if (_getLocalItem("blogLastRouter")) {
+              router.push(_getLocalItem("blogLastRouter"));
+            } else {
+              router.go(-1);
+            }
           } else {
             ElNotification({
               offset: 60,
@@ -185,8 +210,8 @@ const userLogin = async (type) => {
   }
 };
 
-const goRegister = () => {
-  router.push("/register");
+const goTo = (path) => {
+  router.push(path);
 };
 
 // 提交
@@ -203,6 +228,12 @@ watch(
   (newV) => {
     if (newV == "Login") {
       loginFormRef.value && loginFormRef.value.resetFields();
+      // 判断用户是否被记住了
+      let form = _decrypt(_getLocalItem("loginForm"));
+      if (form) {
+        isRemember.value = true;
+        Object.assign(loginForm, JSON.parse(form));
+      }
     } else {
       registerForm.valid && registerFormRef.value.resetFields();
     }
@@ -215,53 +246,173 @@ watch(
 
 <template>
   <div class="layout">
-    <PageHeader />
-    <div class="center_box flex flex-col justify-center items-center">
-      <el-form v-if="route.name == 'Login'" class="login-register-form" ref="loginFormRef" :model="loginForm" :rules="loginRlues" label-width="100px" label-suffix=":">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="loginForm.username" :style="{ width: '220px' }" placeholder="请输入用户名" clearable @keyup.enter.native="submit" />
-        </el-form-item>
-        <el-form-item label="用户密码" prop="password" @keyup.enter.native="submit">
-          <el-input v-model="loginForm.password" show-password :style="{ width: '220px' }" placeholder="请输入密码" clearable />
-        </el-form-item>
-        <el-form-item>
-          <div class="flex justify-between items-center w-[100%]">
-            <el-button class="login-register-button" type="danger" @click="submit">登录</el-button>
-            <div v-if="route.name == 'Login'" class="no-account">没有账号？<span class="line" @click="goRegister">去注册</span></div>
+    <div class="center_box flex flex-col justify-start items-center">
+      <h1 class="welcome" @click="goTo('/home')">欢迎来到小张的个人博客</h1>
+      <div class="login-register-bg">
+        <div class="login-register-box">
+          <div class="flex justify-between items-center !w-[100%]">
+            <span class="title">{{ route.name == "Login" ? "登录" : "注册" }}</span>
+            <div v-if="route.name == 'Login'" class="no-account">
+              没有账号？<span class="line" @click="goTo('/register')">去注册</span>
+            </div>
+            <div v-if="route.name == 'Register'" class="no-account">
+              已有账号？<span class="line" @click="goTo('/login')">去登录</span>
+            </div>
           </div>
-        </el-form-item>
-      </el-form>
-      <el-form v-else class="login-register-form" ref="registerFormRef" :model="registerForm" :rules="registerRules" label-width="100px" label-suffix=":">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="registerForm.username" :style="{ width: '220px' }" placeholder="请输入用户名" clearable />
-        </el-form-item>
-        <el-form-item label="昵称">
-          <el-input v-model="registerForm.nick_name" :style="{ width: '220px' }" placeholder="请输入昵称" clearable />
-        </el-form-item>
-        <el-form-item label="密码" prop="password1">
-          <el-input show-password v-model="registerForm.password1" :style="{ width: '220px' }" placeholder="请输入密码" clearable />
-        </el-form-item>
-        <el-form-item label="确认密码" prop="password2">
-          <el-input show-password v-model="registerForm.password2" :style="{ width: '220px' }" placeholder="确认密码" clearable @keyup.enter.native="submit" />
-        </el-form-item>
-        <el-form-item>
-          <div class="flex justify-between items-center w-[100%]">
-            <el-button class="login-register-button" type="danger" @click="submit">注册</el-button>
-          </div>
-        </el-form-item>
-      </el-form>
+          <el-form
+            v-if="route.name == 'Login'"
+            class="login-register-form"
+            ref="loginFormRef"
+            :model="loginForm"
+            :rules="loginRules"
+          >
+            <el-form-item prop="username">
+              <el-input
+                v-model="loginForm.username"
+                :style="{ width: '100%' }"
+                placeholder="请输入用户名"
+                clearable
+                @keyup.enter="submit"
+              />
+            </el-form-item>
+            <el-form-item prop="password" @keyup.enter="submit">
+              <el-input
+                v-model="loginForm.password"
+                show-password
+                :style="{ width: '100%' }"
+                placeholder="请输入密码"
+                clearable
+              />
+            </el-form-item>
+            <el-form-item class="remember-me">
+              <div class="flex justify-between items-center w-[100%]">
+                <el-checkbox v-model="isRemember">记住我</el-checkbox>
+                <span></span>
+              </div>
+            </el-form-item>
+            <el-form-item>
+              <div class="flex justify-between items-center w-[100%]">
+                <span class="apply-button" type="danger" @click="submit">登录</span>
+              </div>
+            </el-form-item>
+          </el-form>
+          <el-form
+            v-else
+            class="login-register-form"
+            ref="registerFormRef"
+            :model="registerForm"
+            :rules="registerRules"
+          >
+            <el-form-item prop="username">
+              <el-input
+                v-model="registerForm.username"
+                :style="{ width: '100%' }"
+                placeholder="请输入用户名"
+                clearable
+              />
+            </el-form-item>
+            <el-form-item>
+              <el-input
+                v-model="registerForm.nick_name"
+                :style="{ width: '199%' }"
+                placeholder="请输入昵称"
+                clearable
+              />
+            </el-form-item>
+            <el-form-item prop="password1">
+              <el-input
+                show-password
+                v-model="registerForm.password1"
+                :style="{ width: '100%' }"
+                placeholder="请输入密码"
+                clearable
+              />
+            </el-form-item>
+            <el-form-item prop="password2">
+              <el-input
+                show-password
+                v-model="registerForm.password2"
+                :style="{ width: '100%' }"
+                placeholder="确认密码"
+                clearable
+                @keyup.enter="submit"
+              />
+            </el-form-item>
+            <el-form-item>
+              <div class="flex justify-between items-center w-[100%]">
+                <span class="apply-button" @click="submit">注册</span>
+              </div>
+            </el-form-item>
+          </el-form>
+        </div>
+        <SwitchTheme class="switch-theme" />
+        <span class="go-home" @click="goTo('/home')">想回到过去</span>
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.center_box {
-  min-height: 28rem !important;
+.layout {
+  background: #f7f7f7 !important;
 }
-.login-register {
-  margin: 3.75px;
+.center_box {
+  position: relative;
+  min-height: 100vh !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
 
+  .switch-theme {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+  }
+  .go-home {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
+.welcome {
+  cursor: pointer;
+  line-height: 2.4;
+}
+
+.login-register-bg {
+  width: 80%;
+  height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  box-shadow: 0px 5px 20px 0px rgba(0, 0, 0, 0.3);
+}
+
+.login-register-box {
+  width: 30vw;
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .title {
+    font-size: 26px;
+    font-weight: 700;
+  }
+}
+
+.login-register {
+  &-form {
+    width: 100%;
+  }
   &-button {
+    width: 100%;
     height: 24px;
     padding: 0 30px;
     background-color: var(--border-color);
@@ -272,7 +423,20 @@ watch(
     }
   }
 }
+.apply-button {
+  width: 100%;
+  text-align: center;
+  padding: 0 20px;
+  background-color: var(--primary);
+  border: 3px solid var(--primary);
+  border-radius: 0;
 
+  &:hover {
+    color: #fff;
+    border: 3px solid var(--border-color);
+    background-color: var(--border-color);
+  }
+}
 .line {
   cursor: pointer;
   text-decoration: underline;
@@ -283,5 +447,25 @@ watch(
 
 :deep(.el-form-item) {
   padding: 15px 0;
+}
+
+:deep(.el-input__wrapper) {
+  height: 40px;
+  line-height: 40px;
+}
+
+.remember-me {
+  padding: 0;
+}
+
+// mobile
+@media screen and (max-width: 768px) {
+  .login-register-bg {
+    width: 90%;
+  }
+
+  .login-register-box {
+    width: 80%;
+  }
 }
 </style>

@@ -4,10 +4,18 @@
 * @Description: 留言详情页
 -->
 <script setup>
-import { reactive, onMounted } from "vue";
-import { returnTime, _getLocalItem, _removeLocalItem, containHTML } from "@/utils/tool";
+import { reactive, onMounted, h } from "vue";
+import { storeToRefs } from "pinia";
+
+import { returnTime, _getLocalItem, _setLocalItem, containHTML } from "@/utils/tool";
 import { likeMessage, cancelLikeMessage } from "@/api/message";
 import { addLike, cancelLike } from "@/api/like";
+import { user } from "@/store/index";
+
+import { ElNotification } from "element-plus";
+
+const userStore = user();
+const { getUserInfo } = storeToRefs(userStore);
 
 const message = reactive({
   id: 0,
@@ -25,15 +33,15 @@ const message = reactive({
   is_like: false,
 });
 
-const like = async (item, index) => {
+const like = async (item) => {
   // 取消点赞
   if (item.is_like) {
     const res = await cancelLikeMessage(item.id);
     if (res.code == 0) {
       // 记录留言取消点赞
       await cancelLike({ for_id: item.id, type: 3, user_id: getUserInfo.value.id });
-      messageList.value[index].like_times--;
-      messageList.value[index].is_like = false;
+      item.like_times--;
+      item.is_like = false;
       ElNotification({
         offset: 60,
         title: "提示",
@@ -47,8 +55,8 @@ const like = async (item, index) => {
     if (res.code == 0) {
       // 记录留言点赞
       await addLike({ for_id: item.id, type: 3, user_id: getUserInfo.value.id });
-      messageList.value[index].like_times++;
-      messageList.value[index].is_like = true;
+      item.like_times++;
+      item.is_like = true;
       ElNotification({
         offset: 60,
         title: "提示",
@@ -56,6 +64,7 @@ const like = async (item, index) => {
       });
     }
   }
+  _setLocalItem("message-refresh", true);
 };
 
 onMounted(() => {
@@ -69,30 +78,68 @@ onMounted(() => {
   <div class="message">
     <div class="center_box !pt-[80px]">
       <el-card>
-        <div :style="{ backgroundColor: message.bg_color }" class="message-card animate__animated animate__fadeIn">
-          <div class="top" :style="{ backgroundImage: message.bg_url ? `url(${message.bg_url})` : '' }">
+        <div
+          :style="{ backgroundColor: message.bg_color }"
+          class="message-card animate__animated animate__fadeIn"
+        >
+          <div
+            class="top"
+            :style="{ backgroundImage: message.bg_url ? `url(${message.bg_url})` : '' }"
+          >
             <div class="top-header">
               <div class="flex items-center">
-                <el-avatar class="left-avatar" :src="message.avatar">{{ message.nick_name }} </el-avatar>
+                <el-avatar class="left-avatar" :src="message.avatar"
+                  >{{ message.nick_name }}
+                </el-avatar>
                 <span class="nick-name"> {{ message.nick_name }}</span>
               </div>
             </div>
-            <div v-if="containHTML(message.message)" v-html="message.message" :style="{ color: message.color, fontSize: message.font_size + 'px', fontWeight: message.font_weight }"></div>
-            <div v-else :style="{ color: message.color, fontSize: message.font_size + 'px', fontWeight: message.font_weight }">
+            <div
+              v-if="containHTML(message.message)"
+              v-html="message.message"
+              :style="{
+                color: message.color,
+                fontSize: message.font_size + 'px',
+                fontWeight: message.font_weight,
+              }"
+            ></div>
+            <div
+              v-else
+              :style="{
+                color: message.color,
+                fontSize: message.font_size + 'px',
+                fontWeight: message.font_weight,
+              }"
+            >
               {{ message.message }}
             </div>
           </div>
           <div class="bottom">
-            <div class="time">{{ returnTime(message.createdAt) }}前</div>
-            <div class="flex justify-start items-center option">
+            <div class="left flex items-center">
+              <div class="time">{{ returnTime(message.createdAt) }}前</div>
               <div class="index-tag">#{{ message.tag }}</div>
-              <svg-icon :name="message.is_like ? 'redHeart' : 'greyHeart'" :width="1.5" class="!ml-[10px]" @click="like(message, index)"></svg-icon>
-              <span :style="{ color: message.is_like ? '#f00' : '' }" class="!ml-[5px]">{{ message.like_times || 0 }}</span>
+            </div>
+            <div class="flex justify-start items-center option">
+              <svg-icon
+                :name="message.is_like ? 'redHeart' : 'greyHeart'"
+                :width="1.5"
+                @click="like(message, index)"
+              ></svg-icon>
+              <span :style="{ color: message.is_like ? '#f00' : '' }" class="!ml-[5px]">{{
+                message.like_times || 0
+              }}</span>
             </div>
           </div>
         </div>
       </el-card>
-      <Comment v-if="message.id" class="w-[100%] !mt-[1rem]" type="message" :expand="true" :id="message.id" :author-id="message.user_id" />
+      <Comment
+        v-if="message.id"
+        class="w-[100%] !mt-[1rem]"
+        type="message"
+        :expand="true"
+        :id="message.id"
+        :author-id="message.user_id"
+      />
     </div>
   </div>
 </template>
@@ -108,13 +155,17 @@ onMounted(() => {
     border-radius: 8px;
   }
 
+  .left {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 3px 8px;
+  }
+
   .time {
     font-size: 12px;
     color: #fff;
     letter-spacing: 1px;
-    padding: 3px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
+    margin-right: 10px;
   }
 }
 .message-card {
@@ -146,9 +197,8 @@ onMounted(() => {
   align-items: center;
 }
 .index-tag {
-  font-style: italic;
-  font-family: "Peralta", monospace;
   color: #fff;
+  font-size: 12px;
 }
 
 .bottom {
@@ -164,6 +214,11 @@ onMounted(() => {
   border-radius: 8px;
   background-color: rgba(0, 0, 0, 0.2);
 }
+
+.center_box {
+  min-height: calc(100vh - 128px);
+}
+
 // pc
 @media screen and (min-width: 768px) {
   .center_box {

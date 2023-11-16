@@ -5,15 +5,19 @@
  -->
 
 <script setup>
-import { defineComponent, watch, reactive } from "vue";
+import { defineComponent } from "vue";
+import { music } from "@/store/index";
+import { storeToRefs } from "pinia";
 
 defineComponent({
   name: "Information",
 });
 
-const props = defineProps({
+const { getShowLyricBoard } = storeToRefs(music());
+
+defineProps({
   // 当前播放的音乐
-  currentMusic: {
+  musicInfo: {
     type: Object,
     default: () => {},
   },
@@ -28,53 +32,33 @@ const props = defineProps({
     default: false,
   },
 });
-
-// 音乐信息
-// 这样子定义的好处是可以保证这些是有这个属性的，不用再次判断 也不怕报错
-const musicInfo = reactive({
-  al: {
-    picUrl: require("./blogAvatar.png"),
-  },
-  name: "",
-  ar: [
-    {
-      name: "歌手走丢了",
-    },
-  ],
-});
-
-const sourceMusicInfo = reactive({ ...musicInfo });
-
-watch(
-  () => props.currentMusic,
-  (newV) => {
-    Object.assign(musicInfo, sourceMusicInfo, newV);
-  },
-  {
-    immediate: true,
-    deep: true,
-  }
-);
 </script>
 
 <template>
   <!-- 唱片展示 -->
   <div class="music-info">
-    <img :class="['music-img', 'animate__animated', 'animate__fadeIn', isToggleImg ? '' : 'disc-rotate', isPaused ? 'paused' : '']" :src="musicInfo.al.picUrl" />
+    <img
+      :class="['music-img', isToggleImg ? '' : 'disc-rotate', isPaused ? 'paused' : 'running']"
+      @click="music().setShowLyricBoard(!getShowLyricBoard)"
+      :src="musicInfo.al.picUrl"
+    />
     <div class="music-desc">
-      <div class="music-name">{{ musicInfo.name }}</div>
-      <div class="author-name">{{ musicInfo.ar[0].name }}</div>
+      <div class="music-name">
+        {{ musicInfo.name }}
+      </div>
+      <div class="author-name">
+        {{ musicInfo.ar[0].name }}
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .music-info {
-  width: 100%;
-  height: 100%;
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  cursor: pointer;
   .music-img {
     width: 60px;
     height: 60px;
@@ -86,10 +70,19 @@ watch(
 
     .author-name {
       font-size: 0.8rem;
+      margin-top: 5px;
+      overflow: hidden;
+      text-wrap: nowrap;
+      word-break: keep-all;
+      text-overflow: ellipsis;
     }
 
     .music-name {
       font-size: 0.7rem;
+      overflow: hidden;
+      text-wrap: nowrap;
+      word-break: keep-all;
+      text-overflow: ellipsis;
     }
   }
 }
@@ -98,6 +91,9 @@ watch(
   animation: rotate360 18s infinite linear;
 }
 
+.running {
+  animation-play-state: running;
+}
 .paused {
   animation-play-state: paused;
 }
@@ -115,7 +111,14 @@ watch(
 // mobile
 @media screen and (max-width: 768px) {
   .music-img {
-    display: none;
+    // display: none;
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 25px !important;
+  }
+
+  .music-desc {
+    max-width: 4.5rem;
   }
 }
 </style>

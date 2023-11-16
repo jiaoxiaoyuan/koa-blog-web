@@ -4,10 +4,12 @@ import { isMobile, getWelcomeSay } from "@/utils/tool";
 import { addView, getAllPageHeader } from "@/api/config";
 import { useRouter } from "vue-router";
 import { ElNotification } from "element-plus";
-import MusicPlayer from "@/components/Music/index";
 
 import { storeToRefs } from "pinia";
 import { user, staticData } from "@/store/index.js";
+
+import MusicPlayer from "@/components/Music/index";
+import BackTop from "@/components/BackTop/index";
 
 const userStore = user();
 const router = useRouter();

@@ -17,7 +17,16 @@ html.dark {
   }
 
   .layout {
-    background: linear-gradient(90deg, #413939 1%, #483e48 10.2%, #4b4552 19.6%, #3a3a45 36.8%, #364040 62.2%, #3b4146 88.9%, #4a4242 99%) !important;
+    background: linear-gradient(
+      90deg,
+      #413939 1%,
+      #483e48 10.2%,
+      #4b4552 19.6%,
+      #3a3a45 36.8%,
+      #364040 62.2%,
+      #3b4146 88.9%,
+      #4a4242 99%
+    ) !important;
   }
 
   .info-avatar {
@@ -28,6 +37,10 @@ html.dark {
 
   .personal-say {
     color: var(--dark-font-color);
+  }
+
+  .photoList-card {
+    background-color: rgba(0, 0, 0, 0.2);
   }
 
   .right-side .info-card {
@@ -58,7 +71,16 @@ html.dark {
     border: none !important;
     font-weight: 600 !important;
     color: #fff !important;
-    background: linear-gradient(90deg, #413939 1%, #483e48 10.2%, #4b4552 19.6%, #3a3a45 36.8%, #364040 62.2%, #3b4146 88.9%, #4a4242 99%) !important;
+    background: linear-gradient(
+      90deg,
+      #413939 1%,
+      #483e48 10.2%,
+      #4b4552 19.6%,
+      #3a3a45 36.8%,
+      #364040 62.2%,
+      #3b4146 88.9%,
+      #4a4242 99%
+    ) !important;
     z-index: 9999 !important;
   }
 
@@ -74,10 +96,6 @@ html.dark {
     background-color: rgba(0, 0, 0, 0.1);
   }
 
-  .md-preview-v3 {
-    background: rgba(0, 0, 0, 0.1);
-  }
-
   .route-font {
     color: #a7a7a7;
   }
@@ -87,12 +105,16 @@ html.dark {
     color: var(--dark-font-color);
   }
 
-  .page-name .toggle-theme .theme-card-dropdown {
+  .page-header::before {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  .page-header .toggle-theme .theme-card-dropdown {
     color: var(--dark-font-color);
     border: 1px solid var(--dark-font-color);
   }
 
-  .page-name .article,
+  .page-header .article,
   .recommend-box {
     color: var(--dark-font-color);
   }
@@ -105,7 +127,16 @@ html.dark {
   /* 滚动条滑块 */
   ::-webkit-scrollbar-thumb {
     background-color: #57616f;
-    background-image: -webkit-linear-gradient(45deg, rgb(84, 95, 95) 25%, transparent 25%, transparent 50%, rgb(78, 112, 112) 50%, rgb(90, 72, 83) 75%, transparent 75%, transparent);
+    background-image: -webkit-linear-gradient(
+      45deg,
+      rgb(84, 95, 95) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgb(78, 112, 112) 50%,
+      rgb(90, 72, 83) 75%,
+      transparent 75%,
+      transparent
+    );
     border-radius: 2em;
   }
 
@@ -114,8 +145,23 @@ html.dark {
     border-radius: 2em;
   }
 
+  .code-block::scrollbar-thumb {
+    background-color: #69696b !important;
+  }
+  .code-block::-webkit-scrollbar-thumb {
+    background-color: #69696b !important;
+  }
+
   .gradient {
     background: linear-gradient(120deg, #d5d8d8, #cfe5ea, #e4d1ec, #d1e0f5, #e8e8c5, #f1f1e2);
+  }
+
+  .apply-button {
+    background-color: transparent;
+  }
+
+  .login-register-bg {
+    background-color: transparent;
   }
 
   .mk-cute-theme {
@@ -149,6 +195,13 @@ html.dark {
     color: var(--primary) !important;
   }
 
+  .md-preview-v3 {
+    background: rgba(0, 0, 0, 0.1);
+  }
+  .grey {
+    color: #57616f !important;
+  }
+
   .category-item::before {
     background: rgba(0, 0, 0, 0.05);
   }
@@ -166,7 +219,16 @@ html.dark {
   }
 
   .el-avatar {
-    background: linear-gradient(90deg, #584f4f 1%, #605360 10.2%, #685f71 19.6%, #5e5e71 36.8%, #526161 62.2%, #5d666e 88.9%, #726262 99%) !important;
+    background: linear-gradient(
+      90deg,
+      #584f4f 1%,
+      #605360 10.2%,
+      #685f71 19.6%,
+      #5e5e71 36.8%,
+      #526161 62.2%,
+      #5d666e 88.9%,
+      #726262 99%
+    ) !important;
   }
 
   .avatar-font {
@@ -182,19 +244,57 @@ html.dark {
 
   .el-collapse-item__header {
     padding: 0 10px;
-    background: linear-gradient(90deg, #483e48 10.2%, #4b4552 19.6%, #3a3a45 36.8%, #364040 62.2%, #3b4146 88.9%) !important;
+    background: linear-gradient(
+      90deg,
+      #483e48 10.2%,
+      #4b4552 19.6%,
+      #3a3a45 36.8%,
+      #364040 62.2%,
+      #3b4146 88.9%
+    ) !important;
   }
 
   .el-collapse-item__content {
-    background: linear-gradient(90deg, #483e48 10.2%, #4b4552 19.6%, #3a3a45 36.8%, #364040 62.2%, #3b4146 88.9%) !important;
+    background: linear-gradient(
+      90deg,
+      #483e48 10.2%,
+      #4b4552 19.6%,
+      #3a3a45 36.8%,
+      #364040 62.2%,
+      #3b4146 88.9%
+    ) !important;
   }
-
-  .music-controls {
-    background-color: #3d3841;
+  .apply-button {
+    color: var(--dark-font-color);
+    border: 3px solid var(--dark-font-color);
   }
 
   .music {
-    background-color: #3d3841;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .music-box {
+    background-color: #101827;
+  }
+
+  .music-controls {
+    background-color: #101827;
+  }
+
+  .lyric-mask {
+    background-color: #101827;
+  }
+
+  .el-slider__runway {
+    background-color: #fafafa;
+  }
+
+  .music-disc {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .info {
+    color: #fff;
   }
 
   .coffee_cup {
@@ -208,20 +308,19 @@ html.dark {
   }
   .coffee_cup:before {
     background-color: #fafafa;
-    box-shadow: 5px 0px 0px 0px #fafafa, 5px -7px 0px 0px #fafafa, 10px 0px 0px 0px #fafafa;
+    box-shadow:
+      5px 0px 0px 0px #fafafa,
+      5px -7px 0px 0px #fafafa,
+      10px 0px 0px 0px #fafafa;
   }
 
   .message {
-    background-image: linear-gradient(125deg, #636e78, #4c6955, #5c7a8f, #835d58, #735680);
-    background-size: 400%;
-    animation: bgAnimation 15s infinite;
-
     .nick-name {
       color: #000;
       background-color: rgba(255, 255, 255, 0.2);
     }
 
-    .time {
+    .left {
       color: #000;
       background-color: rgba(255, 255, 255, 0.2);
     }
@@ -229,6 +328,13 @@ html.dark {
     .option-top {
       color: #000;
       background-color: rgba(255, 255, 255, 0.2);
+    }
+    .time {
+      color: #000;
+    }
+
+    .message-comment {
+      color: #000;
     }
 
     .option {

@@ -3,7 +3,7 @@ import http from "@/config/request";
 /** 获取说说列表 */
 export const getTalkList = (param) => {
   return new Promise((resolve, reject) => {
-    http.post("/api/talk/blogGetTalkList", param).then((res) => {
+    http.post("/talk/blogGetTalkList", param).then((res) => {
       resolve(res);
     });
   });
@@ -12,7 +12,7 @@ export const getTalkList = (param) => {
 /** 说说点赞 */
 export const talkLike = (id) => {
   return new Promise((resolve, reject) => {
-    http.put("/api/talk/like/" + id, {}).then((res) => {
+    http.put("/talk/like/" + id, {}).then((res) => {
       resolve(res);
     });
   });
@@ -21,7 +21,7 @@ export const talkLike = (id) => {
 /** 取消说说点赞 */
 export const cancelTalkLike = (id) => {
   return new Promise((resolve, reject) => {
-    http.put("/api/talk/cancelLike/" + id, {}).then((res) => {
+    http.put("/talk/cancelLike/" + id, {}).then((res) => {
       resolve(res);
     });
   });
