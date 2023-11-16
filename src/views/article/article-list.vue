@@ -16,7 +16,7 @@ const loading = ref(false);
 let param = reactive({
   // 放置页码及相关数据
   current: 1, //当前页
-  size: 4, //每页条目数
+  size: 8, //每页条目数
   id: "",
 });
 let total = ref(0); // 记录总数

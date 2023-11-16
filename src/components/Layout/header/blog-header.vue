@@ -113,7 +113,8 @@ onMounted(() => {
         >
           <el-menu-item index="/home"><i class="iconfont icon-home"></i> 主页</el-menu-item>
           <el-menu-item index="/archives"><i class="iconfont icon-icon"></i> 时间轴</el-menu-item>
-          <el-sub-menu index="/resources">
+
+          <!-- <el-sub-menu index="/resources">
             <template #title><i class="iconfont icon-menu"></i> 资源导航</template>
             <el-menu-item index="/resources/front"
               ><i class="iconfont icon-folder"></i> 前端</el-menu-item
@@ -121,10 +122,10 @@ onMounted(() => {
             <el-menu-item index="/resources/back"
               ><i class="iconfont icon-houduankaifa"></i> 后端</el-menu-item
             >
-            <!-- <el-menu-item index="/music"><i class="iconfont icon-bofangduilie"></i> 音乐</el-menu-item> -->
-          </el-sub-menu>
-          <el-menu-item index="/category"><i class="iconfont icon-sort"></i> 分类</el-menu-item>
-          <!-- <el-menu-item index="/tag"><i class="iconfont icon-label_fill"></i> 标签</el-menu-item> -->
+          </el-sub-menu> -->
+
+          <!-- <el-menu-item index="/category"><i class="iconfont icon-sort"></i> 分类</el-menu-item> -->
+          <el-menu-item index="/tag"><i class="iconfont icon-label_fill"></i> 标签</el-menu-item>
           <el-menu-item index="/photoAlbum"><i class="iconfont icon-paper"></i> 相册</el-menu-item>
           <el-menu-item index="/talk"><i class="iconfont icon-speechbubble"></i> 说说</el-menu-item>
           <el-menu-item index="/link/list"
@@ -133,7 +134,7 @@ onMounted(() => {
           <el-menu-item index="/message/list"
             ><i class="iconfont icon-liuyan"></i> 留言</el-menu-item
           >
-          <el-menu-item index="/login" v-if="!getUserInfo.id"
+          <!-- <el-menu-item index="/login" v-if="!getUserInfo.id"
             ><i class="iconfont icon-timerauto"></i> 登录</el-menu-item
           >
           <div v-else class="user flex justify-center items-center">
@@ -150,7 +151,7 @@ onMounted(() => {
                 ><i class="iconfont icon-tuichudenglu"></i> 退出</el-menu-item
               >
             </el-sub-menu>
-          </div>
+          </div> -->
           <!-- <el-sub-menu index="/menu">
             <template #title><i class="iconfont icon-menu21"></i> 菜单</template>
           </el-sub-menu> -->

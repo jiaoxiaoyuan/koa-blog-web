@@ -123,6 +123,7 @@ const routes = [
           },
         ],
       },
+
       {
         path: "/resources",
         name: "Resources",
