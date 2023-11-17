@@ -3,7 +3,7 @@ import http from "@/config/request";
 /** 获取榜单 */
 export const reqToplist = () => {
   return new Promise((resolve, reject) => {
-    http.get("http://mrzym.top/wapi/toplist/detail", {}).then((res) => {
+    http.get("https://music.mtsws.cn/wapi/toplist/detail", {}).then((res) => {
       resolve(res);
     });
   });
@@ -13,7 +13,10 @@ export const reqToplist = () => {
 export const reqTopDetaliList = ({ id, limit, offset }) => {
   return new Promise((resolve, reject) => {
     http
-      .get(`http://mrzym.top/wapi/playlist/track/all?id=${id}&limit=${limit}&offset=${offset}`, {})
+      .get(
+        `https://music.mtsws.cn/wapi/playlist/track/all?id=${id}&limit=${limit}&offset=${offset}`,
+        {}
+      )
       .then((res) => {
         resolve(res);
       });
@@ -23,7 +26,7 @@ export const reqTopDetaliList = ({ id, limit, offset }) => {
 /** 获取歌曲详情 主要是播放地址 */
 export const reqMusicDetail = ({ id, level }) => {
   return new Promise((resolve, reject) => {
-    http.get(`http://mrzym.top/wapi/song/url/v1?id=${id}&level=${level}`, {}).then((res) => {
+    http.get(`https://music.mtsws.cn/wapi/song/url/v1?id=${id}&level=${level}`, {}).then((res) => {
       resolve(res);
     });
   });
@@ -32,7 +35,7 @@ export const reqMusicDetail = ({ id, level }) => {
 // 获取音乐的描述
 export const reqMusicDescription = (id) => {
   return new Promise((resolve, reject) => {
-    http.get(`http://mrzym.top/wapi//song/detail?ids=${id}`, {}).then((res) => {
+    http.get(`https://music.mtsws.cn/wapi//song/detail?ids=${id}`, {}).then((res) => {
       resolve(res);
     });
   });
@@ -41,7 +44,7 @@ export const reqMusicDescription = (id) => {
 // 搜索
 export const reqSearch = (keyWords) => {
   return new Promise((resolve, reject) => {
-    http.get(`http://mrzym.top/wapi/search/suggest?keywords=${keyWords}`, {}).then((res) => {
+    http.get(`https://music.mtsws.cn/wapi/search/suggest?keywords=${keyWords}`, {}).then((res) => {
       resolve(res);
     });
   });
@@ -51,7 +54,7 @@ export const reqSearchSingerHot = ({ id, limit, offset }) => {
   return new Promise((resolve, reject) => {
     http
       .get(
-        `http://mrzym.top/wapi/artist/top/song?id=${id}&offset=${offset}&limit=${limit}&order=hot`,
+        `https://music.mtsws.cn/wapi/artist/top/song?id=${id}&offset=${offset}&limit=${limit}&order=hot`,
         {}
       )
       .then((res) => {
@@ -62,7 +65,7 @@ export const reqSearchSingerHot = ({ id, limit, offset }) => {
 // 根据歌曲id获取歌词
 export const reqMusicLyricById = (id) => {
   return new Promise((resolve, reject) => {
-    http.get(`http://mrzym.top/wapi/lyric?id=${id}`, {}).then((res) => {
+    http.get(`https://music.mtsws.cn/wapi/lyric?id=${id}`, {}).then((res) => {
       resolve(res);
     });
   });

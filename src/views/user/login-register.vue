@@ -247,7 +247,7 @@ watch(
 <template>
   <div class="layout">
     <div class="center_box flex flex-col justify-start items-center">
-      <h1 class="welcome" @click="goTo('/home')">欢迎来到小张的个人博客</h1>
+      <h1 class="welcome" @click="goTo('/home')">欢迎来到Me的个人博客</h1>
       <div class="login-register-bg">
         <div class="login-register-box">
           <div class="flex justify-between items-center !w-[100%]">
