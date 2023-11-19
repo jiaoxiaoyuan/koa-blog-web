@@ -9,6 +9,8 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     ArticleSkeleton: typeof import('./src/components/HomeArticle/components/article-skeleton.vue')['default']
     AudioControls: typeof import('./src/components/Music/controls/components/audio-controls.vue')['default']
+    Background: typeof import('./src/components/WelcomeComps/components/Background.vue')['default']
+    BackgroundView: typeof import('./src/components/WelcomeComps/components/BackgroundView.vue')['default']
     BackTop: typeof import('./src/components/BackTop/index.vue')['default']
     BlogFooter: typeof import('./src/components/Layout/footer/blog-footer.vue')['default']
     BlogHeader: typeof import('./src/components/Layout/header/blog-header.vue')['default']
@@ -59,6 +61,7 @@ declare module '@vue/runtime-core' {
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ElUpload: typeof import('element-plus/es')['ElUpload']
     First: typeof import('./src/components/WelcomeComps/first.vue')['default']
+    'First.bat': typeof import('./src/components/WelcomeComps/first.bat.vue')['default']
     GsapCount: typeof import('./src/components/GsapCount/index.vue')['default']
     HomeArticleList: typeof import('./src/components/HomeArticle/home-article-list.vue')['default']
     IconList: typeof import('./src/components/Comment/item/IconList.vue')['default']

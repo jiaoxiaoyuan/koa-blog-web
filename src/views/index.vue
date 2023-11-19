@@ -1,7 +1,8 @@
 <script setup>
 import { shallowRef } from "vue";
 
-import First from "@/components/WelcomeComps/first";
+// import First from "@/components/WelcomeComps/first";
+import First from "./Welcome";
 // import Second from "@/components/WelcomeComps/second";
 
 let componentId = shallowRef(null);
@@ -26,7 +27,8 @@ componentId.value = First;
 <style lang="scss" scoped>
 .welcome-index {
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.9);
+  //   background: rgba(0, 0, 0, 0.9);
+  height: 100%;
 }
 // 进入前
 .welcome-enter-from {

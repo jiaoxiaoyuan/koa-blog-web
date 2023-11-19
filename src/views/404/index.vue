@@ -25,8 +25,12 @@ onBeforeUnmount(() => {
 <template>
   <div class="not-found">
     <div class="flex items-center">
-      <el-button type="primary" size="small" @click="goBack('back')">返回上一页</el-button>
-      <span class="!ml-[5px] cursor-pointer text-sm hover:text-primary-blue" @click="goBack"
+      <el-button type="primary" size="small" @click="goBack('back')"
+        >返回上一页</el-button
+      >
+      <span
+        class="!ml-[5px] cursor-pointer text-sm hover:text-primary-blue"
+        @click="goBack"
         >返回首页</span
       >
     </div>
