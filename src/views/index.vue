@@ -1,8 +1,8 @@
 <script setup>
 import { shallowRef } from "vue";
 
-// import First from "@/components/WelcomeComps/first";
-import First from "./Welcome";
+import First from "@/components/WelcomeComps/first";
+// import First from "./Welcome";
 // import Second from "@/components/WelcomeComps/second";
 
 let componentId = shallowRef(null);
